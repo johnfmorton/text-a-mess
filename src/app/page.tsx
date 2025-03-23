@@ -182,27 +182,39 @@ export default function Home() {
 
   // Use fixed default values to avoid unwanted effect re-runs.
   useEffect(() => {
-    if (db) {
+    if (db && !settingsLoaded) {
+      const defaultMessRange = 50;
+      const defaultMessChance = 75;
       getValue('settings')
         .then((result) => {
-          const defaultMessRange = 50;
-          const defaultMessChance = 75;
-          if (result && typeof (result as { value: { messRange?: number; messChance?: number } }).value === 'object') {
+          if (
+            result &&
+            typeof (
+              result as { value: { messRange?: number; messChance?: number } }
+            ).value === 'object'
+          ) {
             const { messRange: savedRange, messChance: savedChance } =
-              (result as { value: { messRange?: number; messChance?: number } }).value || {};
+              (result as { value: { messRange?: number; messChance?: number } })
+                .value || {};
             if (typeof savedRange === 'number') {
               setMessRange(savedRange);
             }
             if (typeof savedChance === 'number') {
               setMessChance(savedChance);
             }
-            updateOutput(
-              '',
-              savedRange || defaultMessRange,
-              savedChance || defaultMessChance
-            );
+            // Only update output if rawText is still empty.
+            if (rawText === '') {
+              updateOutput(
+                '',
+                savedRange || defaultMessRange,
+                savedChance || defaultMessChance
+              );
+            }
           } else {
-            updateOutput('', defaultMessRange, defaultMessChance);
+            // Only update output if rawText is still empty.
+            if (rawText === '') {
+              updateOutput('', defaultMessRange, defaultMessChance);
+            }
           }
           setSettingsLoaded(true);
         })
@@ -211,7 +223,7 @@ export default function Home() {
           setSettingsLoaded(true);
         });
     }
-  }, [db, getValue, updateOutput]);
+  }, [db, getValue, updateOutput, settingsLoaded, rawText]);
 
   // New effect to check "hideAbout" only once.
   useEffect(() => {
