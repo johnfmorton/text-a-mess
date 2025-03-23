@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // If deploying under a repository name, e.g. "text-a-mess", uncomment and update:
+  // basePath: '/text-a-mess',
+  // assetPrefix: '/text-a-mess/',
+  trailingSlash: true,
 };
 
-export default nextConfig;
+module.exports = nextConfig;
