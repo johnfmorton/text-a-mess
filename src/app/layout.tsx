@@ -21,6 +21,9 @@ const siteUrl =
 export const metadata: Metadata = {
   title: 'Text-A-Mess',
   description: 'Let your text reflect your inner chaos.',
+  alternates: {
+    canonical: 'https://text-a-mess.supergeekery.com',
+  },
   openGraph: {
     title: 'Text-a-Mess',
     description: 'Let your text reflect your inner chaos.',
