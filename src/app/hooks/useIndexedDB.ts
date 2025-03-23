@@ -20,7 +20,7 @@ export default function useIndexedDBStore() {
     };
   }, []);
 
-  const putValue = (key: string, value: any): Promise<void> => {
+  const putValue = (key: string, value: unknown): Promise<void> => {
     return new Promise((resolve, reject) => {
       if (!db) {
         reject(new Error('DB not initialized'));
@@ -34,7 +34,7 @@ export default function useIndexedDBStore() {
     });
   };
 
-  const getValue = (key: string): Promise<any> => {
+  const getValue = (key: string): Promise<unknown> => {
     return new Promise((resolve, reject) => {
       if (!db) {
         reject(new Error('DB not initialized'));

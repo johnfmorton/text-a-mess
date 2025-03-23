@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AboutModal from './About';
 import useIndexedDBStore from './hooks/useIndexedDB';
 
@@ -10,20 +10,183 @@ export default function Home() {
   const [output, setOutput] = useState('');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
-  // New state for controlling the About modal
   const [showAbout, setShowAbout] = useState(false);
+  // New state to ensure we load the About preference only once
+  const [aboutPreferenceLoaded, setAboutPreferenceLoaded] = useState(false);
 
-  // Add a maxChars constant to set the character limit
   const maxChars = 300;
 
-  // Use the custom hook for IndexedDB operations
   const { db, putValue, getValue } = useIndexedDBStore();
 
-  // Retrieve stored settings once the IndexedDB is ready
+  // Wrap obfuscateText in useCallback so it remains stable.
+  const obfuscateText = useCallback(
+    (input: string, messiness: number, chance: number): string => {
+      const maxMarks = Math.ceil(messiness / 10);
+      if (maxMarks <= 0) return input;
+      const specialLetters = new Set([
+        'A',
+        'C',
+        'E',
+        'I',
+        'O',
+        'U',
+        'Y',
+        'P',
+        'R',
+        'S',
+        'T',
+        'Z',
+        'a',
+        'c',
+        'e',
+        'i',
+        'o',
+        'u',
+        'y',
+        'p',
+        'r',
+        's',
+        't',
+        'z',
+      ]);
+      const extraDiacritics = [
+        '\u0336',
+        '\u033E',
+        '\u030B',
+        '\u0360',
+        '\u0311',
+        '\u030D',
+        '\u0342',
+        '\u0343',
+        '\u0358',
+        '\u0352',
+        '\u033D',
+        '\u031F',
+        '\u035C',
+        '\u032C',
+        '\u033A',
+        '\u033B',
+        '\u0321',
+      ];
+      return input
+        .split('')
+        .map((char) => {
+          // Preserve whitespace without modification (including line breaks)
+          if (char.trim() === '') return char;
+          if (Math.random() * 100 > chance) return char;
+          const countAbove = Math.floor(Math.random() * maxMarks) + 1;
+          const countBelow = Math.floor(Math.random() * maxMarks) + 1;
+          let result = char;
+          const diacriticsAbove = [
+            '\u0300',
+            '\u0301',
+            '\u0302',
+            '\u0303',
+            '\u0304',
+            '\u0305',
+            '\u0306',
+            '\u0307',
+            '\u0308',
+            '\u0309',
+            '\u030A',
+            '\u030B',
+            '\u030C',
+            '\u030D',
+            '\u030E',
+            '\u030F',
+            '\u0310',
+            '\u0311',
+            '\u0312',
+            '\u0313',
+            '\u0314',
+            '\u0315',
+            '\u0316',
+            '\u0317',
+            '\u0318',
+            '\u0319',
+            '\u031A',
+            '\u031B',
+            '\u031C',
+            '\u031D',
+            '\u031E',
+            '\u031F',
+            '\u0320',
+            '\u0321',
+            '\u0322',
+            '\u0323',
+            '\u0324',
+            '\u0325',
+            '\u0326',
+            '\u0327',
+            '\u0328',
+            '\u0329',
+            '\u032A',
+            '\u032B',
+            '\u032C',
+            '\u032D',
+            '\u032E',
+            '\u032F',
+            '\u0330',
+          ];
+          const diacriticsBelow = [
+            '\u0316',
+            '\u0317',
+            '\u0323',
+            '\u0324',
+            '\u0325',
+            '\u0326',
+            '\u0327',
+            '\u0328',
+            '\u0330',
+            '\u0331',
+          ];
+          for (let i = 0; i < countAbove; i++) {
+            const randomMark =
+              diacriticsAbove[
+                Math.floor(Math.random() * diacriticsAbove.length)
+              ];
+            result += randomMark;
+          }
+          for (let i = 0; i < countBelow; i++) {
+            const randomMark =
+              diacriticsBelow[
+                Math.floor(Math.random() * diacriticsBelow.length)
+              ];
+            result += randomMark;
+          }
+          if (specialLetters.has(char.toUpperCase())) {
+            const countExtra = Math.floor(Math.random() * maxMarks) + 1;
+            for (let i = 0; i < countExtra; i++) {
+              const randomMark =
+                extraDiacritics[
+                  Math.floor(Math.random() * extraDiacritics.length)
+                ];
+              result += randomMark;
+            }
+          }
+          return result;
+        })
+        .join('');
+    },
+    []
+  );
+
+  // Wrap updateOutput in useCallback so its dependency is stable.
+  const updateOutput = useCallback(
+    (text: string, range: number, chance: number) => {
+      const newOutput = obfuscateText(text, range, chance);
+      setOutput(newOutput);
+    },
+    [obfuscateText]
+  );
+
+  // Use fixed default values to avoid unwanted effect re-runs.
   useEffect(() => {
     if (db) {
       getValue('settings')
         .then((result) => {
+          const defaultMessRange = 50;
+          const defaultMessChance = 75;
           if (result && typeof result.value === 'object') {
             const { messRange: savedRange, messChance: savedChance } =
               result.value;
@@ -34,10 +197,12 @@ export default function Home() {
               setMessChance(savedChance);
             }
             updateOutput(
-              rawText,
-              savedRange || messRange,
-              savedChance || messChance
+              '',
+              savedRange || defaultMessRange,
+              savedChance || defaultMessChance
             );
+          } else {
+            updateOutput('', defaultMessRange, defaultMessChance);
           }
           setSettingsLoaded(true);
         })
@@ -46,198 +211,34 @@ export default function Home() {
           setSettingsLoaded(true);
         });
     }
-  }, [db]);
+  }, [db, getValue, updateOutput]);
 
-  // Check IndexedDB for about content preference instead of localStorage
+  // New effect to check "hideAbout" only once.
   useEffect(() => {
-    if (db) {
+    if (db && !aboutPreferenceLoaded) {
       getValue('hideAbout')
         .then((result) => {
           if (!result || result.value !== true) {
             setShowAbout(true);
+          } else {
+            setShowAbout(false);
           }
+          setAboutPreferenceLoaded(true);
         })
         .catch((error) => {
           console.error('Error retrieving hideAbout preference:', error);
           setShowAbout(true);
+          setAboutPreferenceLoaded(true);
         });
     }
-  }, [db]);
+  }, [db, getValue, aboutPreferenceLoaded]);
 
-  // Function to save settings using the custom hook
   const saveSettings = (range: number, chance: number) => {
     if (db) {
       putValue('settings', { messRange: range, messChance: chance }).catch(
         (error) => console.error('Error saving settings:', error)
       );
     }
-  };
-
-  const diacriticsAbove = [
-    '\u0300', // Grave accent
-    '\u0301', // Acute accent
-    '\u0302', // Circumflex accent
-    '\u0303', // Tilde
-    '\u0304', // Macron
-    '\u0305', // Overline
-    '\u0306', // Breve
-    '\u0307', // Dot above
-    '\u0308', // Diaeresis
-    '\u0309', // Hook above
-    '\u030A', // Ring above
-    '\u030B', // Double acute accent
-    '\u030C', // Caron
-    '\u030D', // Vertical line above
-    '\u030E', // Double vertical line above
-    '\u030F', // Double grave accent
-    '\u0310', // Candrabindu
-    '\u0311', // Inverted breve
-    '\u0312', // Turned comma above
-    '\u0313', // Comma above
-    '\u0314', // Reversed comma above
-    '\u0315', // Comma above right
-    '\u0316', // Grave accent below
-    '\u0317', // Acute accent below
-    '\u0318', // Left tack below
-    '\u0319', // Right tack below
-    '\u031A', // Left angle above
-    '\u031B', // Horn
-    '\u031C', // Left half ring below
-    '\u031D', // Up tack below
-    '\u031E', // Down tack below
-    '\u031F', // Plus sign below
-    '\u0320', // Minus sign below
-    '\u0321', // Palatalized hook below
-    '\u0322', // Retroflex hook below
-    '\u0323', // Dot below
-    '\u0324', // Diaeresis below
-    '\u0325', // Ring below
-    '\u0326', // Comma below
-    '\u0327', // Cedilla
-    '\u0328', // Ogonek
-    '\u0329', // Vertical line below
-    '\u032A', // Bridge below
-    '\u032B', // Inverted double arch below
-    '\u032C', // Caron below
-    '\u032D', // Circumflex accent below
-    '\u032E', // Breve below
-    '\u032F', // Inverted breve below
-    '\u0330', // Tilde below
-  ];
-
-  const diacriticsBelow = [
-    '\u0316', // Combining grave accent below
-    '\u0317', // Combining acute accent below
-    '\u0323', // Combining dot below
-    '\u0324', // Combining diaeresis below
-    '\u0325', // Combining ring below
-    '\u0326', // Combining comma below
-    '\u0327', // Combining cedilla
-    '\u0328', // Combining ogonek
-    '\u0330', // Combining tilde below
-    '\u0331', // Combining macron below
-  ];
-
-  function obfuscateText(
-    input: string,
-    messiness: number,
-    chance: number
-  ): string {
-    // Scale the messiness value to determine the maximum number of diacritical marks for each position
-    const maxMarks = Math.ceil(messiness / 10);
-    if (maxMarks <= 0) return input;
-
-    const specialLetters = new Set([
-      'A',
-      'C',
-      'E',
-      'I',
-      'O',
-      'U',
-      'Y',
-      'P',
-      'R',
-      'S',
-      'T',
-      'Z',
-      'a',
-      'c',
-      'e',
-      'i',
-      'o',
-      'u',
-      'y',
-      'p',
-      'r',
-      's',
-      't',
-      'z',
-    ]);
-    const extraDiacritics = [
-      '\u0336', // Combining Long Strikethrough
-      '\u033E', // Combining Double Vertical Stroke Overlay
-      '\u030B', // Combining Double Acute Accent
-      '\u0360', // Combining Double Tilde
-      '\u0311', // Combining Inverted Breve
-      '\u030D', // Combining Vertical Line Above
-      '\u0342', // Combining Greek Perispomeni
-      '\u0343', // Combining Greek Koronis
-      '\u0358', // Combining Dot Above Right
-      '\u0352', // Combining Turned Comma Above
-      '\u033D', // Combining X Above
-      '\u031F', // Combining Plus Sign Below
-      '\u035C', // Combining Double Breve
-      '\u032C', // Combining Caron Below
-      '\u033A', // Combining X Below
-      '\u033B', // Combining Light Vertical Line Below
-      '\u0321', // Combining Palatalized Hook Below
-    ];
-
-    return input
-      .split('')
-      .map((char) => {
-        // Preserve whitespace without modification (including line breaks)
-        if (char.trim() === '') return char;
-
-        // Roll to decide if this letter should be obfuscated based on chance
-        if (Math.random() * 100 > chance) return char;
-
-        // Generate random counts for above and below diacritics (at least one each)
-        const countAbove = Math.floor(Math.random() * maxMarks) + 1;
-        const countBelow = Math.floor(Math.random() * maxMarks) + 1;
-        let result = char;
-
-        for (let i = 0; i < countAbove; i++) {
-          const randomMark =
-            diacriticsAbove[Math.floor(Math.random() * diacriticsAbove.length)];
-          result += randomMark;
-        }
-        for (let i = 0; i < countBelow; i++) {
-          const randomMark =
-            diacriticsBelow[Math.floor(Math.random() * diacriticsBelow.length)];
-          result += randomMark;
-        }
-
-        // For special letters, add extra diacritics
-        if (specialLetters.has(char.toUpperCase())) {
-          const countExtra = Math.floor(Math.random() * maxMarks) + 1;
-          for (let i = 0; i < countExtra; i++) {
-            const randomMark =
-              extraDiacritics[
-                Math.floor(Math.random() * extraDiacritics.length)
-              ];
-            result += randomMark;
-          }
-        }
-
-        return result;
-      })
-      .join('');
-  }
-
-  const updateOutput = (text: string, range: number, chance: number) => {
-    const newOutput = obfuscateText(text, range, chance);
-    setOutput(newOutput);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -425,7 +426,7 @@ export default function Home() {
                 International
               </a>
             </span>
-            <div className="flex justify-center items-center flex-row flex-wrap">
+            <span className="flex justify-center items-center flex-row flex-wrap">
               <img
                 style={{
                   height: '22px',
@@ -462,7 +463,7 @@ export default function Home() {
                 src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1"
                 alt=""
               />
-            </div>
+            </span>
           </p>
         </footer>
       </div>

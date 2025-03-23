@@ -15,9 +15,11 @@ export default function AboutModal({ onClose }: AboutModalProps) {
   };
 
   const handleClose = () => {
+    console.log('handleClose invoked, dontShow:', dontShow);
     if (dontShow) {
       putValue('hideAbout', true)
         .then(() => {
+          // console.log('Preference saved, closing modal.');
           onClose();
         })
         .catch((error) => {
@@ -25,6 +27,7 @@ export default function AboutModal({ onClose }: AboutModalProps) {
           onClose();
         });
     } else {
+      // console.log('No preference saved, closing modal.');
       onClose();
     }
   };
@@ -51,7 +54,7 @@ export default function AboutModal({ onClose }: AboutModalProps) {
             className="mr-2"
           />
           <label htmlFor="dont-show" className="text-sm">
-            Don't show this again
+            Don&apos;t show this again
           </label>
         </div>
         <button
