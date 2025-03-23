@@ -12,6 +12,12 @@ const kablammo = Kablammo({
   subsets: ["latin"],
 });
 
+// Define your site URL based on the environment
+const siteUrl =
+  process.env.NODE_ENV === "production"
+    ? "https://text-a-mess.supergeekery.com"
+    : "http://localhost:3000";
+
 export const metadata: Metadata = {
   title: 'Text-A-Mess',
   description: 'Let your text reflect your inner chaos.',
@@ -20,7 +26,7 @@ export const metadata: Metadata = {
     description: 'Let your text reflect your inner chaos.',
     images: [
       {
-        url: '/text-a-mess-social-1280x640.png',
+        url: `${siteUrl}/text-a-mess-social-1280x640.png`,
         width: 1280,
         height: 640,
         alt: 'Text-a-Mess Social Image',
