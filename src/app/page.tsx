@@ -6,6 +6,7 @@ export default function Home() {
   const [messRange, setMessRange] = useState(50);
   const [messChance, setMessChance] = useState(75);
   const [output, setOutput] = useState('');
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
 
   // Reference to the IndexedDB database
   const dbRef = useRef<IDBDatabase | null>(null);
@@ -37,13 +38,16 @@ export default function Home() {
           // Update output with stored settings
           updateOutput(rawText, settings.messRange || messRange, settings.messChance || messChance);
         }
+        setSettingsLoaded(true);
       };
       getRequest.onerror = () => {
         console.error('Error retrieving settings:', getRequest.error);
+        setSettingsLoaded(true);
       };
     };
     request.onerror = () => {
       console.error('Error opening IndexedDB:', request.error);
+      setSettingsLoaded(true);
     };
   }, []);
 
@@ -106,7 +110,6 @@ export default function Home() {
     '\u032E', // Breve below
     '\u032F', // Inverted breve below
     '\u0330' // Tilde below
-
   ];
 
   const diacriticsBelow = [
@@ -124,7 +127,7 @@ export default function Home() {
 
   function obfuscateText(input: string, messiness: number, chance: number): string {
     // Scale the messiness value to determine the maximum number of diacritical marks for each position
-    const maxMarks = Math.ceil(messiness / 20);
+    const maxMarks = Math.ceil(messiness / 10);
     if (maxMarks <= 0) return input;
 
     const specialLetters = new Set(['A', 'C', 'E', 'I', 'O', 'U', 'Y', 'P', 'R', 'S', 'T', 'Z', 'a', 'c', 'e', 'i', 'o', 'u', 'y', 'p', 'r', 's', 't', 'z']);
@@ -146,7 +149,6 @@ export default function Home() {
       '\u033A', // Combining X Below
       '\u033B', // Combining Light Vertical Line Below
       '\u0321'  // Combining Palatalized Hook Below
-
     ];
 
     return input.split('').map((char) => {
@@ -211,6 +213,14 @@ export default function Home() {
   const copyToClipboard = () => {
     navigator.clipboard.writeText(output);
   };
+
+  if (!settingsLoaded) {
+    return (
+      <div className="container mx-auto w-full max-w-3xl p-8">
+        <p>Loading settings...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
