@@ -8,6 +8,9 @@ export default function Home() {
   const [output, setOutput] = useState('');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
 
+  // Add a maxChars constant to set the character limit
+  const maxChars = 300;
+
   // Reference to the IndexedDB database
   const dbRef = useRef<IDBDatabase | null>(null);
 
@@ -232,9 +235,16 @@ export default function Home() {
           id="raw-text"
           className="w-full h-64 p-2 bg-amber-400/10"
           placeholder="Type your message here"
+          maxLength={maxChars}
           value={rawText}
           onChange={handleTextChange}
         />
+
+        <div id='char-count' className={rawText.length >= maxChars * 0.8 ? 'text-red-500' : 'text-gray-700'}>
+          {rawText.length} / {maxChars} characters
+        </div>
+
+        <hr />
 
         <label htmlFor="mess-chance">
           What is the chance of a messy letter?
