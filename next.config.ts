@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // If deploying under a repository name, e.g. "text-a-mess", uncomment and update:
-  // basePath: '/text-a-mess',
-  // assetPrefix: '/text-a-mess/',
+  basePath: '/',
+  assetPrefix: '/',
   trailingSlash: true,
 };
 
