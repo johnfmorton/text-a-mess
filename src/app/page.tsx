@@ -1,5 +1,6 @@
-"use client";
+'use client';
 import { useState, useEffect, useRef } from 'react';
+import AboutModal from './About';
 
 export default function Home() {
   const [rawText, setRawText] = useState('');
@@ -7,6 +8,9 @@ export default function Home() {
   const [messChance, setMessChance] = useState(75);
   const [output, setOutput] = useState('');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [copySuccess, setCopySuccess] = useState('');
+  // New state for controlling the About modal
+  const [showAbout, setShowAbout] = useState(false);
 
   // Add a maxChars constant to set the character limit
   const maxChars = 300;
@@ -39,7 +43,11 @@ export default function Home() {
             setMessChance(settings.messChance);
           }
           // Update output with stored settings
-          updateOutput(rawText, settings.messRange || messRange, settings.messChance || messChance);
+          updateOutput(
+            rawText,
+            settings.messRange || messRange,
+            settings.messChance || messChance
+          );
         }
         setSettingsLoaded(true);
       };
@@ -52,6 +60,14 @@ export default function Home() {
       console.error('Error opening IndexedDB:', request.error);
       setSettingsLoaded(true);
     };
+  }, []);
+
+  // Check localStorage for about content preference
+  useEffect(() => {
+    const hideAbout = localStorage.getItem('hideAbout');
+    if (hideAbout !== 'true') {
+      setShowAbout(true);
+    }
   }, []);
 
   // Function to save settings to IndexedDB
@@ -74,7 +90,7 @@ export default function Home() {
     '\u0307', // Dot above
     '\u0308', // Diaeresis
     '\u0309', // Hook above
-    '\u030A',  // Ring above
+    '\u030A', // Ring above
     '\u030B', // Double acute accent
     '\u030C', // Caron
     '\u030D', // Vertical line above
@@ -112,7 +128,7 @@ export default function Home() {
     '\u032D', // Circumflex accent below
     '\u032E', // Breve below
     '\u032F', // Inverted breve below
-    '\u0330' // Tilde below
+    '\u0330', // Tilde below
   ];
 
   const diacriticsBelow = [
@@ -125,15 +141,44 @@ export default function Home() {
     '\u0327', // Combining cedilla
     '\u0328', // Combining ogonek
     '\u0330', // Combining tilde below
-    '\u0331'  // Combining macron below
+    '\u0331', // Combining macron below
   ];
 
-  function obfuscateText(input: string, messiness: number, chance: number): string {
+  function obfuscateText(
+    input: string,
+    messiness: number,
+    chance: number
+  ): string {
     // Scale the messiness value to determine the maximum number of diacritical marks for each position
     const maxMarks = Math.ceil(messiness / 10);
     if (maxMarks <= 0) return input;
 
-    const specialLetters = new Set(['A', 'C', 'E', 'I', 'O', 'U', 'Y', 'P', 'R', 'S', 'T', 'Z', 'a', 'c', 'e', 'i', 'o', 'u', 'y', 'p', 'r', 's', 't', 'z']);
+    const specialLetters = new Set([
+      'A',
+      'C',
+      'E',
+      'I',
+      'O',
+      'U',
+      'Y',
+      'P',
+      'R',
+      'S',
+      'T',
+      'Z',
+      'a',
+      'c',
+      'e',
+      'i',
+      'o',
+      'u',
+      'y',
+      'p',
+      'r',
+      's',
+      't',
+      'z',
+    ]);
     const extraDiacritics = [
       '\u0336', // Combining Long Strikethrough
       '\u033E', // Combining Double Vertical Stroke Overlay
@@ -151,41 +196,49 @@ export default function Home() {
       '\u032C', // Combining Caron Below
       '\u033A', // Combining X Below
       '\u033B', // Combining Light Vertical Line Below
-      '\u0321'  // Combining Palatalized Hook Below
+      '\u0321', // Combining Palatalized Hook Below
     ];
 
-    return input.split('').map((char) => {
-      // Preserve whitespace without modification
-      if (char.trim() === '') return char;
+    return input
+      .split('')
+      .map((char) => {
+        // Preserve whitespace without modification
+        if (char.trim() === '') return char;
 
-      // Roll to decide if this letter should be obfuscated based on chance
-      if (Math.random() * 100 > chance) return char;
+        // Roll to decide if this letter should be obfuscated based on chance
+        if (Math.random() * 100 > chance) return char;
 
-      // Generate random counts for above and below diacritics (at least one each)
-      const countAbove = Math.floor(Math.random() * maxMarks) + 1;
-      const countBelow = Math.floor(Math.random() * maxMarks) + 1;
-      let result = char;
+        // Generate random counts for above and below diacritics (at least one each)
+        const countAbove = Math.floor(Math.random() * maxMarks) + 1;
+        const countBelow = Math.floor(Math.random() * maxMarks) + 1;
+        let result = char;
 
-      for (let i = 0; i < countAbove; i++) {
-        const randomMark = diacriticsAbove[Math.floor(Math.random() * diacriticsAbove.length)];
-        result += randomMark;
-      }
-      for (let i = 0; i < countBelow; i++) {
-        const randomMark = diacriticsBelow[Math.floor(Math.random() * diacriticsBelow.length)];
-        result += randomMark;
-      }
-
-      // For special letters, add extra diacritics
-      if (specialLetters.has(char.toUpperCase())) {
-        const countExtra = Math.floor(Math.random() * maxMarks) + 1;
-        for (let i = 0; i < countExtra; i++) {
-          const randomMark = extraDiacritics[Math.floor(Math.random() * extraDiacritics.length)];
+        for (let i = 0; i < countAbove; i++) {
+          const randomMark =
+            diacriticsAbove[Math.floor(Math.random() * diacriticsAbove.length)];
           result += randomMark;
         }
-      }
+        for (let i = 0; i < countBelow; i++) {
+          const randomMark =
+            diacriticsBelow[Math.floor(Math.random() * diacriticsBelow.length)];
+          result += randomMark;
+        }
 
-      return result;
-    }).join('');
+        // For special letters, add extra diacritics
+        if (specialLetters.has(char.toUpperCase())) {
+          const countExtra = Math.floor(Math.random() * maxMarks) + 1;
+          for (let i = 0; i < countExtra; i++) {
+            const randomMark =
+              extraDiacritics[
+                Math.floor(Math.random() * extraDiacritics.length)
+              ];
+            result += randomMark;
+          }
+        }
+
+        return result;
+      })
+      .join('');
   }
 
   const updateOutput = (text: string, range: number, chance: number) => {
@@ -214,7 +267,16 @@ export default function Home() {
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(output);
+    navigator.clipboard
+      .writeText(output)
+      .then(() => {
+        setCopySuccess('Copied to clipboard!');
+        setTimeout(() => setCopySuccess(''), 3000);
+      })
+      .catch(() => {
+        setCopySuccess('Failed to copy.');
+        setTimeout(() => setCopySuccess(''), 3000);
+      });
   };
 
   if (!settingsLoaded) {
@@ -227,96 +289,122 @@ export default function Home() {
 
   return (
     <div>
-      <div className="container mx-auto w-full max-w-3xl bg-white p-8 pb-20 font-[family-name:var(--font-geist-sans)]">
-        <div className="text-center  pb-4">
-          <h1 className="text-7xl font-black text-center mb-2 font-[family-name:var(--font-kablammo)]">
-            Text-a-Mess
-          </h1>
-          <p className="font-bold text-lg text-slate-600 italic">
-            Let your text reflect your inner chaos.
-          </p>
-        </div>
-        <textarea
-          name="rawText"
-          id="raw-text"
-          className="w-full min-h-36 p-4 bg-slate-300/10 border border-gray-300 rounded h-auto"
-          placeholder="Type your message here"
-          maxLength={maxChars}
-          value={rawText}
-          onChange={handleTextChange}
-        />
-
+      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
+      <div className="container mx-auto w-full max-w-3xl bg-white pt-6 px-6 font-[family-name:var(--font-geist-sans)] flex flex-col justify-between min-h-dvh">
         <div>
-          <div
-            id="char-count"
-            className={
-              (rawText.length >= maxChars * 0.8
-                ? 'text-red-500'
-                : 'text-gray-700') + ' font-mono text-sm'
-            }
-          >
-            {rawText.length} / {maxChars} characters
-          </div>
-          <div>
-            <p className="text-gray-500 text-sm">
-              {rawText.length >= maxChars
-                ? 'You have reached the maximum character limit.'
-                : ''}
+          <div className="text-center pb-4">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-center mb-2 font-[family-name:var(--font-kablammo)]">
+              Text-a-Mess
+            </h1>
+            <p className="font-bold sm:text-lg text-slate-600 italic">
+              Let̟̦͂ yo̶̮̱ur tex̟̖ṭ̊̋ ṛ̖̾ef̰̀l̤̰ȩ̈̾ct yoȗ̗̱r̶̮̖ inn̖̖er cḥ̖a̪̱̓os̶̙̤.
             </p>
           </div>
-        </div>
-
-        <div className="space-y-2 py-3 border border-gray-300 p-4 my-6 text-sm">
-          <h2 className="font-bold text-base">Settings</h2>
-          <label htmlFor="mess-chance">
-            What is the chance of a messy letter?
-          </label>
-          <input
-            type="range"
-            name="mess-chance"
-            id="mess-chance"
-            min="0"
-            max="100"
-            step="1"
-            value={messChance}
-            onChange={handleChanceChange}
-            className="w-full"
+          <textarea
+            name="rawText"
+            id="raw-text"
+            className="w-full min-h-36 p-4 bg-slate-300/10 border border-gray-300 rounded h-auto"
+            placeholder="Type your message here"
+            maxLength={maxChars}
+            value={rawText}
+            onChange={handleTextChange}
           />
 
-          <label htmlFor="mess-range">How messy are you feeling?</label>
-          <input
-            type="range"
-            name="mess-range"
-            id="mess-range"
-            min="0"
-            max="100"
-            step="1"
-            value={messRange}
-            onChange={handleRangeChange}
-            className="w-full"
-          />
-        </div>
-        <div
-          id="output"
-          className="w-full min-h-36 p-4 bg-slate-300/10 border border-gray-300 rounded break-words whitespace-pre-wrap"
-        >
-          <p
-            className={
-              rawText.length >= 1 ? 'text-slate-900-500' : 'text-gray-400'
-            }
+          <div className="mb-6 flex flex-col sm:flex-row justify-between">
+            <div
+              id="char-count"
+              className={
+                (rawText.length >= maxChars * 0.8
+                  ? 'text-red-500'
+                  : 'text-gray-700') + ' font-mono text-sm'
+              }
+            >
+              {rawText.length} / {maxChars} characters
+            </div>
+            <div>
+              <p className="text-gray-500 text-sm">
+                {rawText.length >= maxChars
+                  ? 'You have reached the maximum character limit.'
+                  : ''}
+              </p>
+            </div>
+          </div>
+
+          <div
+            id="output"
+            className="w-full min-h-36 p-4 bg-slate-300/10 border border-gray-300 rounded break-words whitespace-pre-wrap"
           >
-            {output || 'Your messy text will appear here'}
+            <p
+              className={
+                rawText.length >= 1 ? 'text-slate-900-500' : 'text-gray-400'
+              }
+            >
+              {output || 'Your messy text will appear here'}
+            </p>
+          </div>
+
+          <div className="space-y-2 pt-3 pb-4 border border-gray-300 p-4 my-6 text-sm">
+            <h2 className="font-bold text-base">Settings</h2>
+            <label htmlFor="mess-chance">
+              What is the chance of a messy letter?
+            </label>
+            <input
+              type="range"
+              name="mess-chance"
+              id="mess-chance"
+              min="0"
+              max="100"
+              step="1"
+              value={messChance}
+              onChange={handleChanceChange}
+              className="w-full"
+            />
+
+            <label htmlFor="mess-range">How messy are you feeling?</label>
+            <input
+              type="range"
+              name="mess-range"
+              id="mess-range"
+              min="0"
+              max="100"
+              step="1"
+              value={messRange}
+              onChange={handleRangeChange}
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex justify-center mt-4 flex-col items-center">
+            <button
+              onClick={copyToClipboard}
+              className="bg-green-900 focus:bg-green-700 hover:bg-green-700 text-white px-5 py-1.5 text-lg rounded-sm font-bold border border-slate-200 cursor-pointer transform-gpu transition-color duration-150 ease-in-out"
+            >
+              Copy your mess to the clipboard
+            </button>
+            {copySuccess && (
+              <div className="text-green-600 mt-2 text-center">
+                {copySuccess}
+              </div>
+            )}
+          </div>
+        </div>
+        {/* Footer button to show the About modal */}
+        <footer className="mt-12 text-center flex flex-row justify-between text-xs px-3 sm:px-0 py-3 text-slate-600 border-t border-gray-200">
+          <div>
+            <button
+              onClick={() => {
+                localStorage.removeItem('hideAbout');
+                setShowAbout(true);
+              }}
+              className="text-sky-700 underline"
+            >
+              About this app
+            </button> | <a href="https://supergeekery.com">SuperGeekery.com</a> | <a href="https://github.com/supergeekery">GitHub</a>
+          </div>
+          <p className="">
+            © 2025 <a href="https://supergeekery.com">SuperGeekery.com</a>
           </p>
-        </div>
-
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={copyToClipboard}
-            className="bg-green-700 text-white px-5 py-1.5 text-lg rounded-sm font-bold border border-slate-200 cursor-pointer"
-          >
-            Copy your mess to the clipboard
-          </button>
-        </div>
+        </footer>
       </div>
     </div>
   );
