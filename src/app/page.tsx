@@ -287,7 +287,7 @@ export default function Home() {
       <div className="container mx-auto w-full max-w-3xl bg-white pt-6 px-6 font-[family-name:var(--font-geist-sans)] flex flex-col justify-between min-h-dvh">
         <div>
           <div className="text-center pb-4">
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-center mb-2 font-[family-name:var(--font-kablammo)]">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-center mb-2 font-[family-name:var(--font-kablammo)] text-a-mess-gradient">
               Text-a-Mess
             </h1>
             <p className="font-bold sm:text-lg text-slate-600 italic">
@@ -370,7 +370,7 @@ export default function Home() {
           <div className="flex justify-center mt-4 flex-col items-center">
             <button
               onClick={copyToClipboard}
-              className="bg-green-900 focus:bg-green-700 hover:bg-green-700 text-white px-5 py-1.5 text-lg rounded-sm font-bold border border-slate-200 cursor-pointer transform-gpu transition-color duration-150 ease-in-out"
+              className="bg-a-mess-gradient text-white px-5 py-1.5 text-lg rounded-sm font-bold border border-slate-200 cursor-pointer transform-gpu transition-color duration-150 ease-in-out"
             >
               Copy your mess to the clipboard
             </button>
@@ -382,7 +382,7 @@ export default function Home() {
           </div>
         </div>
         {/* Footer button to show the About modal */}
-        <footer className="mt-12 text-center flex flex-row justify-between text-xs px-3 sm:px-0 py-3 text-slate-600 border-t border-gray-200">
+        <footer className="mt-12 text-center flex flex-col justify-between text-xs px-3 sm:px-0 py-3 text-slate-600 border-t border-gray-200 gap-3">
           <div>
             <button
               onClick={() => {
@@ -399,8 +399,70 @@ export default function Home() {
             | <a href="https://supergeekery.com">SuperGeekery.com</a> |{' '}
             <a href="https://github.com/supergeekery">GitHub</a>
           </div>
-          <p className="">
-            © 2025 <a href="https://supergeekery.com">SuperGeekery.com</a>
+          <p className="w-full text-center flex flex-col items-center gap-1">
+            <span>
+              <a
+                rel="cc:attributionURL"
+                href="https://text-a-mess.supergeekery.com"
+              >
+                Text-a-Mess
+              </a>{' '}
+              by{' '}
+              <a
+                rel="cc:attributionURL dct:creator"
+                href="https://johnfmorton.com"
+              >
+                John F Morton
+              </a>{' '}
+              is licensed under{' '}
+              <a
+                href="https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1"
+                target="_blank"
+                rel="license noopener noreferrer"
+                style={{ display: 'inline-block' }}
+              >
+                Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+                International
+              </a>
+            </span>
+            <div className="flex justify-center items-center flex-row flex-wrap">
+              <img
+                style={{
+                  height: '22px',
+                  marginLeft: '3px',
+                  verticalAlign: 'text-bottom',
+                }}
+                src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"
+                alt=""
+              />
+              <img
+                style={{
+                  height: '22px',
+                  marginLeft: '3px',
+                  verticalAlign: 'text-bottom',
+                }}
+                src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"
+                alt=""
+              />
+              <img
+                style={{
+                  height: '22px',
+                  marginLeft: '3px',
+                  verticalAlign: 'text-bottom',
+                }}
+                src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"
+                alt=""
+              />
+              <img
+                style={{
+                  height: '22px',
+                  marginLeft: '3px',
+                  verticalAlign: 'text-bottom',
+                }}
+                src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1"
+                alt=""
+              />
+            </div>
           </p>
         </footer>
       </div>
