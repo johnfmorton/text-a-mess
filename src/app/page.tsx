@@ -233,26 +233,37 @@ export default function Home() {
             Text-a-Mess
           </h1>
           <p className="font-bold text-lg text-slate-600 italic">
-            Be as messy as you want to be.
+            Let your text reflect your inner chaos.
           </p>
         </div>
         <textarea
           name="rawText"
           id="raw-text"
-          className="w-full min-h-36 p-4 bg-slate-300/10 border border-gray-300 rounded"
+          className="w-full min-h-36 p-4 bg-slate-300/10 border border-gray-300 rounded h-auto"
           placeholder="Type your message here"
           maxLength={maxChars}
           value={rawText}
           onChange={handleTextChange}
         />
 
-        <div
-          id="char-count"
-          className={
-            (rawText.length >= maxChars * 0.8 ? 'text-red-500' : 'text-gray-700') + ' font-mono text-sm'
-          }
-        >
-          {rawText.length} / {maxChars} characters
+        <div>
+          <div
+            id="char-count"
+            className={
+              (rawText.length >= maxChars * 0.8
+                ? 'text-red-500'
+                : 'text-gray-700') + ' font-mono text-sm'
+            }
+          >
+            {rawText.length} / {maxChars} characters
+          </div>
+          <div>
+            <p className="text-gray-500 text-sm">
+              {rawText.length >= maxChars
+                ? 'You have reached the maximum character limit.'
+                : ''}
+            </p>
+          </div>
         </div>
 
         <div className="space-y-2 py-3 border border-gray-300 p-4 my-6 text-sm">
@@ -287,7 +298,7 @@ export default function Home() {
         </div>
         <div
           id="output"
-          className="w-full min-h-36 p-4 bg-slate-300/10 border border-gray-300 rounded"
+          className="w-full min-h-36 p-4 bg-slate-300/10 border border-gray-300 rounded break-words whitespace-pre-wrap"
         >
           <p
             className={
@@ -298,8 +309,13 @@ export default function Home() {
           </p>
         </div>
 
-        <div>
-          <button onClick={copyToClipboard}>Copy to clipboard</button>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={copyToClipboard}
+            className="bg-green-700 text-white px-5 py-1.5 text-lg rounded-sm font-bold border border-slate-200 cursor-pointer"
+          >
+            Copy your mess to the clipboard
+          </button>
         </div>
       </div>
     </div>

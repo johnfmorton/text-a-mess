@@ -7,10 +7,10 @@ import "./globals.css";
 //   subsets: ["latin"],
 // });
 
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 const kablammo = Kablammo({
   variable: "--font-kablammo",
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${kablammo.variable} ${kablammo.variable} antialiased`}>
+      <body className={`${kablammo.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>
     </html>
