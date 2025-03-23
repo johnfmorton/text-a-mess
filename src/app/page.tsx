@@ -219,63 +219,83 @@ export default function Home() {
 
   if (!settingsLoaded) {
     return (
-      <div className="container mx-auto w-full max-w-3xl p-8">
-        <p>Loading settings...</p>
+      <div className="container mx-auto w-full max-w-3xl p-8 flex flex-col items-center justify-center min-h-screen">
+        <p>Loading...</p>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="container mx-auto w-full max-w-3xl bg-amber-100 p-8 pb-20 font-[family-name:var(--font-geist-sans)]">
-        <h1 className="text-4xl font-black text-center mb-2">Text-a-Mess</h1>
-        <p>Be as messy as you want to be.</p>
+      <div className="container mx-auto w-full max-w-3xl bg-white p-8 pb-20 font-[family-name:var(--font-geist-sans)]">
+        <div className="text-center  pb-4">
+          <h1 className="text-7xl font-black text-center mb-2 font-[family-name:var(--font-kablammo)]">
+            Text-a-Mess
+          </h1>
+          <p className="font-bold text-lg text-slate-600 italic">
+            Be as messy as you want to be.
+          </p>
+        </div>
         <textarea
           name="rawText"
           id="raw-text"
-          className="w-full h-64 p-2 bg-amber-400/10"
+          className="w-full min-h-36 p-4 bg-slate-300/10 border border-gray-300 rounded"
           placeholder="Type your message here"
           maxLength={maxChars}
           value={rawText}
           onChange={handleTextChange}
         />
 
-        <div id='char-count' className={rawText.length >= maxChars * 0.8 ? 'text-red-500' : 'text-gray-700'}>
+        <div
+          id="char-count"
+          className={
+            (rawText.length >= maxChars * 0.8 ? 'text-red-500' : 'text-gray-700') + ' font-mono text-sm'
+          }
+        >
           {rawText.length} / {maxChars} characters
         </div>
 
-        <hr />
+        <div className="space-y-2 py-3 border border-gray-300 p-4 my-6 text-sm">
+          <h2 className="font-bold text-base">Settings</h2>
+          <label htmlFor="mess-chance">
+            What is the chance of a messy letter?
+          </label>
+          <input
+            type="range"
+            name="mess-chance"
+            id="mess-chance"
+            min="0"
+            max="100"
+            step="1"
+            value={messChance}
+            onChange={handleChanceChange}
+            className="w-full"
+          />
 
-        <label htmlFor="mess-chance">
-          What is the chance of a messy letter?
-        </label>
-        <input
-          type="range"
-          name="mess-chance"
-          id="mess-chance"
-          min="0"
-          max="100"
-          step="1"
-          value={messChance}
-          onChange={handleChanceChange}
-          className="w-full"
-        />
-
-        <label htmlFor="mess-range">How messy are you feeling?</label>
-        <input
-          type="range"
-          name="mess-range"
-          id="mess-range"
-          min="0"
-          max="100"
-          step="1"
-          value={messRange}
-          onChange={handleRangeChange}
-          className="w-full"
-        />
-
-        <div id="output" className="w-full h-64 p-2 bg-amber-400/10">
-          <p>{output || 'Output will go here'}</p>
+          <label htmlFor="mess-range">How messy are you feeling?</label>
+          <input
+            type="range"
+            name="mess-range"
+            id="mess-range"
+            min="0"
+            max="100"
+            step="1"
+            value={messRange}
+            onChange={handleRangeChange}
+            className="w-full"
+          />
+        </div>
+        <div
+          id="output"
+          className="w-full min-h-36 p-4 bg-slate-300/10 border border-gray-300 rounded"
+        >
+          <p
+            className={
+              rawText.length >= 1 ? 'text-slate-900-500' : 'text-gray-400'
+            }
+          >
+            {output || 'Your messy text will appear here'}
+          </p>
         </div>
 
         <div>
