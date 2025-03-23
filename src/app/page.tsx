@@ -187,9 +187,9 @@ export default function Home() {
         .then((result) => {
           const defaultMessRange = 50;
           const defaultMessChance = 75;
-          if (result && typeof result.value === 'object') {
+          if (result && typeof (result as { value: { messRange?: number; messChance?: number } }).value === 'object') {
             const { messRange: savedRange, messChance: savedChance } =
-              result.value;
+              (result as { value: { messRange?: number; messChance?: number } }).value || {};
             if (typeof savedRange === 'number') {
               setMessRange(savedRange);
             }
@@ -218,7 +218,7 @@ export default function Home() {
     if (db && !aboutPreferenceLoaded) {
       getValue('hideAbout')
         .then((result) => {
-          if (!result || result.value !== true) {
+          if (!result || (result as { value?: boolean }).value !== true) {
             setShowAbout(true);
           } else {
             setShowAbout(false);
