@@ -300,7 +300,7 @@ export default function Home() {
       <div className="container mx-auto w-full max-w-3xl bg-white pt-6 px-6 font-[family-name:var(--font-geist-sans)] flex flex-col justify-between min-h-dvh">
         <div>
           <div className="text-center pb-4">
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-center mb-2 font-[family-name:var(--font-kablammo)] text-a-mess-gradient">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-center mb-2 font-[family-name:var(--font-kablammo)] text-a-mess-gradient p-1">
               Text-a-Mess
             </h1>
             <p className="font-bold sm:text-lg text-slate-600 italic">

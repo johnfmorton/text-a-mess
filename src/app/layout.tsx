@@ -13,8 +13,20 @@ const kablammo = Kablammo({
 });
 
 export const metadata: Metadata = {
-  title: "Text-A-Mess",
-  description: "Let your text reflect your inner chaos.",
+  title: 'Text-A-Mess',
+  description: 'Let your text reflect your inner chaos.',
+  openGraph: {
+    title: 'Text-a-Mess',
+    description: 'Let your text reflect your inner chaos.',
+    images: [
+      {
+        url: '/text-a-mess-social-1280x640.png',
+        width: 1280,
+        height: 640,
+        alt: 'Text-a-Mess Social Image',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
