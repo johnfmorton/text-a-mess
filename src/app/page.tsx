@@ -1,6 +1,7 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import AboutModal from './About';
+import useIndexedDBStore from './hooks/useIndexedDB';
 
 export default function Home() {
   const [rawText, setRawText] = useState('');
@@ -15,67 +16,60 @@ export default function Home() {
   // Add a maxChars constant to set the character limit
   const maxChars = 300;
 
-  // Reference to the IndexedDB database
-  const dbRef = useRef<IDBDatabase | null>(null);
+  // Use the custom hook for IndexedDB operations
+  const { db, putValue, getValue } = useIndexedDBStore();
 
-  // Open or create the IndexedDB on component mount
+  // Retrieve stored settings once the IndexedDB is ready
   useEffect(() => {
-    const request = indexedDB.open('TextAMessSettings', 1);
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains('settings')) {
-        db.createObjectStore('settings', { keyPath: 'id' });
-      }
-    };
-    request.onsuccess = () => {
-      dbRef.current = request.result;
-      // Retrieve stored settings
-      const transaction = dbRef.current.transaction('settings', 'readonly');
-      const store = transaction.objectStore('settings');
-      const getRequest = store.get('settings');
-      getRequest.onsuccess = () => {
-        const settings = getRequest.result;
-        if (settings) {
-          if (typeof settings.messRange === 'number') {
-            setMessRange(settings.messRange);
+    if (db) {
+      getValue('settings')
+        .then((result) => {
+          if (result && typeof result.value === 'object') {
+            const { messRange: savedRange, messChance: savedChance } =
+              result.value;
+            if (typeof savedRange === 'number') {
+              setMessRange(savedRange);
+            }
+            if (typeof savedChance === 'number') {
+              setMessChance(savedChance);
+            }
+            updateOutput(
+              rawText,
+              savedRange || messRange,
+              savedChance || messChance
+            );
           }
-          if (typeof settings.messChance === 'number') {
-            setMessChance(settings.messChance);
-          }
-          // Update output with stored settings
-          updateOutput(
-            rawText,
-            settings.messRange || messRange,
-            settings.messChance || messChance
-          );
-        }
-        setSettingsLoaded(true);
-      };
-      getRequest.onerror = () => {
-        console.error('Error retrieving settings:', getRequest.error);
-        setSettingsLoaded(true);
-      };
-    };
-    request.onerror = () => {
-      console.error('Error opening IndexedDB:', request.error);
-      setSettingsLoaded(true);
-    };
-  }, []);
-
-  // Check localStorage for about content preference
-  useEffect(() => {
-    const hideAbout = localStorage.getItem('hideAbout');
-    if (hideAbout !== 'true') {
-      setShowAbout(true);
+          setSettingsLoaded(true);
+        })
+        .catch((error) => {
+          console.error('Error retrieving settings:', error);
+          setSettingsLoaded(true);
+        });
     }
-  }, []);
+  }, [db]);
 
-  // Function to save settings to IndexedDB
+  // Check IndexedDB for about content preference instead of localStorage
+  useEffect(() => {
+    if (db) {
+      getValue('hideAbout')
+        .then((result) => {
+          if (!result || result.value !== true) {
+            setShowAbout(true);
+          }
+        })
+        .catch((error) => {
+          console.error('Error retrieving hideAbout preference:', error);
+          setShowAbout(true);
+        });
+    }
+  }, [db]);
+
+  // Function to save settings using the custom hook
   const saveSettings = (range: number, chance: number) => {
-    if (dbRef.current) {
-      const transaction = dbRef.current.transaction('settings', 'readwrite');
-      const store = transaction.objectStore('settings');
-      store.put({ id: 'settings', messRange: range, messChance: chance });
+    if (db) {
+      putValue('settings', { messRange: range, messChance: chance }).catch(
+        (error) => console.error('Error saving settings:', error)
+      );
     }
   };
 
@@ -202,7 +196,7 @@ export default function Home() {
     return input
       .split('')
       .map((char) => {
-        // Preserve whitespace without modification
+        // Preserve whitespace without modification (including line breaks)
         if (char.trim() === '') return char;
 
         // Roll to decide if this letter should be obfuscated based on chance
@@ -373,7 +367,6 @@ export default function Home() {
               className="w-full"
             />
           </div>
-
           <div className="flex justify-center mt-4 flex-col items-center">
             <button
               onClick={copyToClipboard}
@@ -393,13 +386,18 @@ export default function Home() {
           <div>
             <button
               onClick={() => {
-                localStorage.removeItem('hideAbout');
+                // Remove the stored preference and show the About modal again
+                putValue('hideAbout', { value: false }).catch((error) =>
+                  console.error('Error removing hideAbout preference:', error)
+                );
                 setShowAbout(true);
               }}
               className="text-sky-700 underline"
             >
               About this app
-            </button> | <a href="https://supergeekery.com">SuperGeekery.com</a> | <a href="https://github.com/supergeekery">GitHub</a>
+            </button>{' '}
+            | <a href="https://supergeekery.com">SuperGeekery.com</a> |{' '}
+            <a href="https://github.com/supergeekery">GitHub</a>
           </div>
           <p className="">
             © 2025 <a href="https://supergeekery.com">SuperGeekery.com</a>

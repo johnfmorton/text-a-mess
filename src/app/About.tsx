@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import useIndexedDBStore from './hooks/useIndexedDB';
 
 interface AboutModalProps {
   onClose: () => void;
@@ -7,6 +8,7 @@ interface AboutModalProps {
 
 export default function AboutModal({ onClose }: AboutModalProps) {
   const [dontShow, setDontShow] = useState(false);
+  const { putValue } = useIndexedDBStore();
 
   const handleDontShowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDontShow(e.target.checked);
@@ -14,9 +16,17 @@ export default function AboutModal({ onClose }: AboutModalProps) {
 
   const handleClose = () => {
     if (dontShow) {
-      localStorage.setItem('hideAbout', 'true');
+      putValue('hideAbout', true)
+        .then(() => {
+          onClose();
+        })
+        .catch((error) => {
+          console.error('Error saving About preference:', error);
+          onClose();
+        });
+    } else {
+      onClose();
     }
-    onClose();
   };
 
   return (
@@ -24,9 +34,13 @@ export default function AboutModal({ onClose }: AboutModalProps) {
       <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
         <h2 className="text-xl font-bold mb-4">About Text-a-Mess</h2>
         <p className="mb-4">
-          Text-a-Mess is a hacky little app that obfuscates your text using diacritical
-          marks. It transforms your text into something
-          visually interesting but <span className='text-red-700 font-bold'>it severely impacts accessibility of your status messages.</span> Please use it with that in mind. It was built just for fun.
+          Text-a-Mess is a hacky little app that obfuscates your text using
+          diacritical marks. It transforms your text into something visually
+          interesting but{' '}
+          <span className="text-red-700 font-bold">
+            it severely impacts accessibility of your status messages.
+          </span>{' '}
+          Please use it with that in mind. It was built just for fun.
         </p>
         <div className="flex items-center mb-4">
           <input
