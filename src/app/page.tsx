@@ -409,8 +409,20 @@ export default function Home() {
             >
               About this app
             </button>{' '}
-            | <a href="https://supergeekery.com">SuperGeekery.com</a> |{' '}
-            <a href="https://github.com/supergeekery">GitHub</a>
+            |{' '}
+            <a
+              href="https://supergeekery.com"
+              className="text-sky-700 underline"
+            >
+              SuperGeekery.com
+            </a>{' '}
+            |{' '}
+            <a
+              href="https://github.com/johnfmorton/text-a-mess"
+              className="text-sky-700 underline"
+            >
+              Source code on GitHub
+            </a>
           </div>
           <p className="w-full text-center flex flex-col items-center gap-1">
             <span>
@@ -424,6 +436,7 @@ export default function Home() {
               <a
                 rel="cc:attributionURL dct:creator"
                 href="https://johnfmorton.com"
+                className="text-sky-700 underline"
               >
                 John F Morton
               </a>{' '}
@@ -433,6 +446,7 @@ export default function Home() {
                 target="_blank"
                 rel="license noopener noreferrer"
                 style={{ display: 'inline-block' }}
+                className="text-sky-700 underline"
               >
                 Creative Commons Attribution-NonCommercial-ShareAlike 4.0
                 International
