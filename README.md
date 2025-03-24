@@ -26,19 +26,19 @@ After focusing on Vue JS for most of my client work, I've recently been explorin
 
 I've also been experimenting with the concept of "Vibe coding" with AI tools. I used ChatGPT with its o3-mini-high model while building this app.
 
-I wanted to see how much I could build with React and ChatGPT in a single day. I'm happy with the result. If I had more time, I could have done more, but I'm satisfied with what I did.
+I wanted to see how much I could build with React and ChatGPT in a single day. If I had more time, I could have done more, but I'm satisfied with what I did.
 
 ## Vibe coding impressions
 
-The "vibe coding" idea interests me, but the AI tools we have now are not perfect. However, I came away from this app-building exercise thinking that I understood how the app works because I had foundational knowledge and knew how to ask the AI tool for specific requests.
+The "vibe coding" idea interests me, but the AI tools we have now are not perfect. However, I came away from this app-building exercise thinking that I understood how the app works because I had foundational knowledge and knew how to ask the AI tool for specific requests.
 
 The AI often made mistakes and introduced bugs in my code. To fix those errors, I had to understand why the bugs were happening so that I could describe to the AI how I wanted to fix them. Sometimes, I just gave up and fixed the bug myself.
 
-Obviously, AI will continue to improve, but to execute a project and maintain the vision of what you want to achieve, you need to understand the code you're writing. I think AI tools can help you get there faster, but they're not a replacement for understanding the code you're writing.
+Obviously, AI will continue to improve, but to execute a project and maintain the vision of what you want to achieve, you need to understand the code you're writing. AI tools can help you get there faster, but they do not replace understanding how your app's code works.
 
 ## What's next?
 
-I might update this app over time, but as it stands now, it does basically what I wanted. The Monday morning after I published it, I did see a visual bug in Safari where the output text diacritical marks were not updating when they were outside the line of text's X height. I fixed that bug in version 1.0.1. That fix still happened within the 24-hour window I gave myself to build this app, so I'll count that as being within the timeframe of the original build.
+I might update this app over time, but as it stands now, it does basically what I wanted. The Monday morning after I published it, I noticed a visual bug in Safari: the output text diacritical marks did not update when they were outside the line of text's X height. I fixed that bug in version 1.0.1. That fix still happened within the 24-hour window I gave myself to build this app, so I'll count that as being within the timeframe of the original build.
 
 ## How can you help?
 
