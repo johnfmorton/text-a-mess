@@ -37,11 +37,17 @@ export default function AboutModal({ onClose }: AboutModalProps) {
       <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
         <h2 className="text-xl font-bold mb-4">About Text-a-Mess</h2>
         <p className="mb-4">
-          Text-a-Mess is a hacky little app that obfuscates your text using
-          diacritical marks. It transforms your text into something visually
-          interesting but{' '}
-          <span className="text-red-700 font-bold">
-            it severely impacts accessibility of your status messages.
+          Text-a-Mess is a hacky little app that obfuscates your text
+          using&nbsp;
+          <a
+            href="https://en.wikipedia.org/wiki/Diacritic"
+            className="text-blue-600 underline" target='_blank'
+          >
+            diacritical marks
+          </a>
+          . It transforms your text into something visually interesting but{' '}
+          <span className="text-red-700 font-bold bg-amber-50">
+            it severely impacts accessibility of your text.
           </span>{' '}
           Please use it with that in mind. It was built just for fun.
         </p>

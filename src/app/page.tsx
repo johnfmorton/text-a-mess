@@ -286,6 +286,22 @@ export default function Home() {
       });
   };
 
+  // Use a new effect to trigger a reflow in Safari to fix a visual bug
+  // that prevented the output from updating the diacritical marks
+  // outside the boundries of the X height of the text.
+  useEffect(() => {
+    // JavaScript reflow trigger hack for Safari rendering issues
+    const el = document.getElementById('output');
+    if (el) {
+      // Temporarily hide the element to force reflow
+      el.style.display = 'none';
+      // Accessing offsetHeight forces a reflow
+      void el.offsetHeight;
+      // Restore display style
+      el.style.display = '';
+    }
+  }, [output]);
+
   if (!settingsLoaded) {
     return (
       <div className="container mx-auto w-full max-w-3xl p-8 flex flex-col items-center justify-center min-h-screen">
