@@ -14,7 +14,7 @@ A simple text search will still
 
 I got the idea for this little app a few days ago while going through my Bluesky feed. I saw someone using diacritical marks in their status update in a funny way, and I thought it would be fun to have an app that lets you mess up your text as much or as little as you wanted.
 
-Then, on March 23, 2025, it had a free Sunday, so I built it as fast as possible using some techniques I wanted to test.
+Then, on March 23, 2025, I had a free Sunday, so I built it as fast as possible using some techniques I wanted to test.
 
 [Text-a-Mess](https://text-a-mess.supergeekery.com/) is the result of that day's work.
 
